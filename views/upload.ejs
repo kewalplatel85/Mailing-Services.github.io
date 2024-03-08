@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="/js/main.js"></script>
+        <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <title>Upload CSV</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <style>
+    form {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    label {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    button {
+      background-color: #2ecc71;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+    <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/upload">Upload</a></li>
+          <li><a href="/manage">Manage</a></li>
+        </ul>
+      </nav>
+  <h1>Upload CSV</h1>
+
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="csvFile" accept=".csv" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <div id="csvContent">
+  </div>
+
+  <script>
+     <% if (noCsv) { %>
+      toastr.info("CSV Uploaded Successfully");
+  <% } else if (!noCsv) { %>
+    console.log("..")
+  <% } %>
+  </script>
+</body>
+</html>

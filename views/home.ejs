@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send sms</title>
+  <script src="/js/main.js"></script>
+  <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+<body>
+    <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/upload">Upload</a></li>
+          <li><a href="/manage">Manage</a></li>
+        </ul>
+      </nav>
+  <h1>Send SMS</h1>
+
+    <form action="/send_sms" method="post" id="form1">
+        <h2>Mail Box No.</h2>
+          <input type="text" id="tag-input" name="tag-input" placeholder="Enter Mailbox number" style="width: fit-contentß;">
+    
+        <!-- <h2>Please select type of Package</h2>
+        <ul>
+            <li><input type="radio" id="Fedex" name="package" value="Fedex">
+                <label for="Fedex">Fedex</label></li>
+            <li><input type="radio" id="USPS" name="package" value="USPS">
+                <label for="USPS">USPS</label></li>
+            <li><input type="radio" id="UPS" name="package" value="UPS">
+                <label for="UPS">UPS</label></li>
+            <li><input type="radio" id="Amazon" name="package" value="Amazon">
+                <label for="Amazon">Amazon</label></li>
+        </ul> -->
+        
+        
+        
+        
+          <br>
+          
+        <h2>Tracking No.</h2>
+        <input type="text" id="cuisine" name="cuisine" placeholder="Scan Package">
+        <br>
+    
+
+      
+        <div class="form-group text-right">
+          <button type="submit" class="btn btn-secondary"> Submit</button>
+        </div>
+
+    </form>
+    <table border="1" id="csvTable" >
+      <thead>
+        <tr>
+    <% if (typeof csvContent !== 'undefined' && csvContent.length > 0) { %>
+      
+            <% Object.values(csvContent[0]).forEach(function(header) { %>
+              <th><%= header %></th>
+            <% }); %>
+          </tr>
+        </thead>
+        <tbody id="csvTableBody">
+          <% csvContent.slice(1).forEach(function(row) { %>
+            <tr>
+              <% Object.values(row).forEach(function(cell) { %>
+                <td><%= cell %></td>
+              <% }); %>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+
+  <script>
+ <% if (typeof csvContent !== 'undefined') { %>
+    console.log("..");
+  <% } else if (noCsv) { %>
+    toastr.error("Please upload CSV");
+  <% } %>
+
+document.addEventListener("DOMContentLoaded", function() {
+    var input = document.getElementById("tag-input");
+    console.log(input)
+    
+    input.addEventListener("input", function() {
+        var filter = input.value.toUpperCase();
+        var matchFound = false;
+        console.log(filter, ".......")
+        var table = document.getElementById("csvTableBody");
+        var rows = table.getElementsByTagName("tr");
+        console.log(rows, "/////")
+
+        for (var i = 0; i < rows.length; i++) {
+            var td = rows[i].getElementsByTagName("td")[0]; // Assuming mailbox number is in the first column
+            if (td) {
+                var txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                    matchFound = true;
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    });
+});
+</script>
+</body>
+
+</html>
