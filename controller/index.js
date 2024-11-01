@@ -1,13 +1,14 @@
 // const axios = require('axios');
 // const libFuncion = require('../helper/libFunction');
 const accountSid = 'AC8aaa0283a0ae9b6d60fe06a1fab34b90';
-const authToken = '3646108e832191e141900c42341d2481';
+const authToken = '5cdffd03ab38dd5c9a3501b553ebb789';
 const client = require('twilio')(accountSid, authToken);
 // const con = require("../database/db")
 
 // const XLSX = require('xlsx');
 const path = require('path');
-
+// const print = require('printer')
+// const printers = require('node-printer');
 
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -21,7 +22,7 @@ const dbConfig = {
   database: 'mailallcenter',
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 10, // Adjust the number of connections as needed
+  connectionLimit: 10, 
   queueLimit: 0
 };
 
@@ -31,18 +32,10 @@ const promisePool = pool.promise();
 
 const get_home = async (req, res) => {
     try {
-// Example query
-const sqlQuery = 'SELECT * FROM mailallcenter.incoming';
-
-// Using promise-based connection
-promisePool.query(sqlQuery)
-  .then(([rows, fields]) => {
-    console.log('Query result:', rows);
 
     const filePath = path.join(__dirname, '../uploads', 'mail.csv');
     console.log(filePath);
     const csvContent = [];
-    // Check if the file 'mail.csv' exists
     if (fs.existsSync(filePath)) {
       let rowCount = 0;
  
@@ -53,7 +46,7 @@ promisePool.query(sqlQuery)
     rowCount++;
     if (rowCount > 6) {
       if (data['4']) {
-          data['4'] = data['4'].replace(/\D/g, ''); // Remove non-numeric characters
+          data['4'] = data['4'].replace(/\D/g, ''); 
         }
       csvContent.push(data);
     }})
@@ -66,22 +59,9 @@ promisePool.query(sqlQuery)
   });
   
     } else {
-        // Render 'home.ejs' without csvContent
         res.render('home',{ noCsv: true });
     }
 
-
-  })
-  .catch((err) => {
-    console.error('Error executing query:', err);
-  });
-
-
-    // const resp= await pool.query('SELECT * FROM mailallcenter.incoming')
-    // console.log(resp, "..............");
-    // client.release();
-
-     
     } catch (err) {
         console.error(err.message);
         res.send(err.message);
@@ -107,14 +87,14 @@ try {
       rowCount++;
       if (rowCount > 6) {
         if (data['4']) {
-            data['4'] = data['4'].replace(/\D/g, ''); // Remove non-numeric characters
+            data['4'] = data['4'].replace(/\D/g, ''); 
           }
         results.push(data);
         
       }})
     .on('end', () => {
         console.log(results[0], results[1], results[2])
-      // Display CSV content on the page
+
       const csvContent = JSON.stringify(results, null, 2);
     //   console.log(csvContent);
     res.render('upload',{ noCsv: true });
@@ -147,48 +127,88 @@ const send_sms = async (req, res) => {
 console.log(rows, "rows");
         })
 
-        // const workbook = XLSX.readFile(filePath);
-        // const sheetName = workbook.SheetNames[0];
-        // const worksheet = workbook.Sheets[sheetName];
-        //     const data = XLSX.utils.sheet_to_json(worksheet);
-        //     console.log(data);
-        //     const filteredData = data.filter(item => item.Mailbox === parseInt(mailbox));
-        //     console.log(filteredData);
+        const filePath = path.join(__dirname, '../uploads', 'mail.csv');
+        console.log(filePath);
+        const csvContent = [];
+        if (fs.existsSync(filePath)) {
+          let rowCount = 0;
+        fs.createReadStream(filePath)
+      .pipe(csv({ headers: false }))
+      .on('data', (data) => 
+      {
+        rowCount++;
+        if (rowCount > 6) {
+          if (data['4']) {
+              data['4'] = data['4'].replace(/\D/g, ''); 
+            }
+          csvContent.push(data);
+        }})
+      .on('end', () => {
+          console.log(csvContent, "::::::::::::::::::::::::::::::::::::::::::::::")
+          const phone = csvContent.map(obj => obj['0'] == mailbox ? obj['4'] : null).find(value => value !== null);
 
-
-
-
-
-// client.messages
-// .create({
-//    body: msg,
-//    from: '+16504050844',
-//   //  to: `+${filteredData[0]['Phone']}`
+console.log("Value of '4' where '0'=5001:", phone);
+client.messages
+.create({
+   body: msg,
+   from: '+16504050844',
+   to: `+1${phone}`
 // to: '+14083415122'
-//  })
-// .then(message => console.log(message.sid, message.status));
-            res.send(true)
-    
-            
+ })
+.then(message => console.log(message.sid, message.status));
+res.send(true)
+      });
+    }       
     } catch (err) {
         console.error(err.message);
         res.send(err.message);
     }
 }
 
-const get_pickup = async (req, res) => { 
+const get_package = async (req, res) => { 
   try {
-    res.render('upload',{ noCsv: false });
+    const sqlQuery = 'SELECT * FROM mailallcenter.incoming';
+promisePool.query(sqlQuery)
+  .then(([rows, fields]) => {
+    console.log('Query result:', rows);
+    res.render('manage');
+  })
 } catch (err) {
   console.error(err.message);
   res.send(err.message);
 }
 }
-
+// const get_printer = async (req, res) => { 
+//   try {
+//     const printerrrr = print.getPrinters()
+//     console.log(printerrrr,":::")
+//     const printQueue = printers.list();
+//     console.log(printQueue, ":::::::::::::")
+//     var printer = new printers('Zebra_ZP_505');
+//     var text = 'Print text directly, when needed: e.g. barcode printers'
+//     var jobFromText = printer.printText(text);
+//   //   printers.printDirect({
+//   //     data: "hiiiii",
+//   //     type: 'RAW',
+//   //     printer: 'Zebra_ZP_505', 
+//   //     success: function(jobID){
+//   //         console.log('Label printed with ID:', jobID);
+//   //         res.status(200).send('Label printed successfully');
+//   //     },
+//   //     error: function(err){
+//   //         console.error('Error printing label:', err);
+//   //         res.status(500).send('Error printing label');
+//   //     }
+//   // });
+// } catch (err) {
+//   console.error(err.message);
+//   res.send(err.message);
+// }
+// }
 module.exports = {
     get_home,
     send_sms,
     get_upload,
     post_upload,
-    get_pickup,
+    get_package
 };
